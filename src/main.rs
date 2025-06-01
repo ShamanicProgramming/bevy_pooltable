@@ -16,6 +16,6 @@ pub struct PooltablePlugin;
 
 impl Plugin for PooltablePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (add_table, add_camera, add_light));
+        app.add_systems(Startup, (add_table, add_camera, add_light, add_balls));
     }
 }
