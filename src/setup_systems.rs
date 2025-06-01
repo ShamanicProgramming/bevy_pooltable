@@ -1,3 +1,4 @@
+use crate::{components::*, constants::CAMERA_HEIGHT};
 use bevy::prelude::*;
 use rand::{rng, seq::SliceRandom};
 
@@ -43,7 +44,7 @@ pub fn add_table(
 pub fn add_camera(mut commands: Commands) {
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(0.0, 2.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        Transform::from_xyz(-1.7, CAMERA_HEIGHT, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 }
 
@@ -115,6 +116,7 @@ pub fn add_balls(
 
     // cue ball
     commands.spawn((
+        CueBall,
         Mesh3d(meshes.add(Sphere::new(0.0254))),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(cue_ball_texture.clone()),
