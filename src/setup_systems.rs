@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use crate::{components::*, constants::CAMERA_HEIGHT};
 use bevy::prelude::*;
 use rand::{rng, seq::SliceRandom};
@@ -11,50 +13,55 @@ pub fn add_table(
     let brown_table_material = materials.add(Color::srgb_u8(102, 51, 0));
 
     commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(2.54, 1.27))),
+        Mesh3d(meshes.add(Plane3d::default().mesh().size(25.4, 12.7))),
         MeshMaterial3d(green_table_material.clone()),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(2.54, 0.08, 0.08))),
+        Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))),
         MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(0.0, 0.0, 0.635),
+        Transform::from_xyz(0.0, 0.0, 6.35),
     ));
 
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(2.54, 0.08, 0.08))),
+        Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))),
         MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(0.0, 0.0, -0.635),
+        Transform::from_xyz(0.0, 0.0, -6.35),
     ));
 
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(0.08, 0.08, 1.27))),
+        Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))),
         MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(1.27, 0.0, 0.0),
+        Transform::from_xyz(12.7, 0.0, 0.0),
     ));
 
     commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(0.08, 0.08, 1.27))),
+        Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))),
         MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(-1.27, 0.0, 0.0),
+        Transform::from_xyz(-12.7, 0.0, 0.0),
     ));
 }
 
 pub fn add_camera(mut commands: Commands) {
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(-1.7, CAMERA_HEIGHT, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        Transform::from_xyz(-17.0, CAMERA_HEIGHT, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 }
 
 pub fn add_light(mut commands: Commands) {
     commands.spawn((
-        PointLight {
+        DirectionalLight {
+            illuminance: light_consts::lux::AMBIENT_DAYLIGHT,
             shadows_enabled: true,
             ..default()
         },
-        Transform::from_xyz(2.0, 4.0, 2.0),
+        Transform {
+            translation: Vec3::new(0.0, 2.0, 0.0),
+            rotation: Quat::from_rotation_x(-PI / 4.),
+            ..default()
+        },
     ));
 }
 
@@ -85,20 +92,20 @@ pub fn add_balls(
     ];
 
     let ball_positions = [
-        (0.614, 0.0254, 0.0508),
-        (0.614, 0.0254, -0.0508),
-        (0.5632, 0.0254, -0.0254),
-        (0.5632, 0.0254, 0.0254),
-        (0.5124, 0.0254, 0.0),
-        (0.6648, 0.0254, 0.0254),
-        (0.6648, 0.0254, -0.0254),
-        (0.6648, 0.0254, -0.0762),
-        (0.6648, 0.0254, 0.0762),
-        (0.7156, 0.0254, 0.0),
-        (0.7156, 0.0254, -0.0508),
-        (0.7156, 0.0254, 0.0508),
-        (0.7156, 0.0254, 0.1016),
-        (0.7156, 0.0254, -0.1016),
+        (6.14, 0.254, 0.508),
+        (6.14, 0.254, -0.508),
+        (5.632, 0.254, -0.254),
+        (5.632, 0.254, 0.254),
+        (5.124, 0.254, 0.0),
+        (6.648, 0.254, 0.254),
+        (6.648, 0.254, -0.254),
+        (6.648, 0.254, -0.762),
+        (6.648, 0.254, 0.762),
+        (7.156, 0.254, 0.0),
+        (7.156, 0.254, -0.508),
+        (7.156, 0.254, 0.508),
+        (7.156, 0.254, 1.016),
+        (7.156, 0.254, -1.016),
     ];
 
     let mut rng = rng();
@@ -106,29 +113,29 @@ pub fn add_balls(
 
     // eight ball
     commands.spawn((
-        Mesh3d(meshes.add(Sphere::new(0.0254))),
+        Mesh3d(meshes.add(Sphere::new(0.254))),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(eight_ball_texture.clone()),
             ..default()
         })),
-        Transform::from_xyz(0.614, 0.0254, 0.0),
+        Transform::from_xyz(6.14, 0.254, 0.0),
     ));
 
     // cue ball
     commands.spawn((
         CueBall,
-        Mesh3d(meshes.add(Sphere::new(0.0254))),
+        Mesh3d(meshes.add(Sphere::new(0.254))),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(cue_ball_texture.clone()),
             ..default()
         })),
-        Transform::from_xyz(-0.614, 0.0254, 0.0),
+        Transform::from_xyz(-6.14, 0.254, 0.0),
     ));
 
     // other balls
     for i in 0..14 {
         commands.spawn((
-            Mesh3d(meshes.add(Sphere::new(0.0254))),
+            Mesh3d(meshes.add(Sphere::new(0.254))),
             MeshMaterial3d(materials.add(StandardMaterial {
                 base_color_texture: Some(ball_textures[i].clone()),
                 ..default()

@@ -1,1 +1,1 @@
-pub const CAMERA_HEIGHT: f32 = 0.8;
+pub const CAMERA_HEIGHT: f32 = 8.0;
