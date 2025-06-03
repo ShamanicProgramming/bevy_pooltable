@@ -123,6 +123,10 @@ pub fn add_balls(
 
     // cue ball
     commands.spawn((
+        Velocity {
+            direction: Vec3::default(),
+            speed: 0.0,
+        },
         CueBall,
         Mesh3d(meshes.add(Sphere::new(0.254))),
         MeshMaterial3d(materials.add(StandardMaterial {
