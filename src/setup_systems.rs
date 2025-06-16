@@ -2,6 +2,7 @@ use std::f32::consts::PI;
 
 use crate::{components::*, constants::CAMERA_HEIGHT};
 use bevy::prelude::*;
+use bevy_rapier3d::{dynamics::RigidBody, prelude::Velocity};
 use rand::{rng, seq::SliceRandom};
 
 pub fn add_table(
@@ -12,31 +13,37 @@ pub fn add_table(
     let green_table_material = materials.add(Color::srgb_u8(10, 108, 3));
     let brown_table_material = materials.add(Color::srgb_u8(102, 51, 0));
 
+    // tabletop
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(25.4, 12.7))),
         MeshMaterial3d(green_table_material.clone()),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
+    // table sides
     commands.spawn((
+        RigidBody::Fixed,
         Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))),
         MeshMaterial3d(brown_table_material.clone()),
         Transform::from_xyz(0.0, 0.0, 6.35),
     ));
 
     commands.spawn((
+        RigidBody::Fixed,
         Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))),
         MeshMaterial3d(brown_table_material.clone()),
         Transform::from_xyz(0.0, 0.0, -6.35),
     ));
 
     commands.spawn((
+        RigidBody::Fixed,
         Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))),
         MeshMaterial3d(brown_table_material.clone()),
         Transform::from_xyz(12.7, 0.0, 0.0),
     ));
 
     commands.spawn((
+        RigidBody::Fixed,
         Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))),
         MeshMaterial3d(brown_table_material.clone()),
         Transform::from_xyz(-12.7, 0.0, 0.0),
@@ -45,6 +52,8 @@ pub fn add_table(
 
 pub fn add_camera(mut commands: Commands) {
     commands.spawn((
+        RigidBody::Dynamic,
+        Velocity::zero(),
         Camera3d::default(),
         Transform::from_xyz(-17.0, CAMERA_HEIGHT, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
@@ -113,6 +122,8 @@ pub fn add_balls(
 
     // eight ball
     commands.spawn((
+        RigidBody::Dynamic,
+        Velocity::zero(),
         Mesh3d(meshes.add(Sphere::new(0.254))),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(eight_ball_texture.clone()),
@@ -123,10 +134,8 @@ pub fn add_balls(
 
     // cue ball
     commands.spawn((
-        Velocity {
-            direction: Vec3::default(),
-            speed: 0.0,
-        },
+        RigidBody::Dynamic,
+        Velocity::zero(),
         CueBall,
         Mesh3d(meshes.add(Sphere::new(0.254))),
         MeshMaterial3d(materials.add(StandardMaterial {
@@ -139,6 +148,8 @@ pub fn add_balls(
     // other balls
     for i in 0..14 {
         commands.spawn((
+            RigidBody::Dynamic,
+            Velocity::zero(),
             Mesh3d(meshes.add(Sphere::new(0.254))),
             MeshMaterial3d(materials.add(StandardMaterial {
                 base_color_texture: Some(ball_textures[i].clone()),

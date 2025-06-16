@@ -1,22 +1,19 @@
 use crate::{components::*, constants::*};
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::Velocity;
 
-pub fn camera_watch_cue_ball(
-    camera: Single<&mut Transform, With<Camera3d>>,
-    cue_ball: Single<(&Transform, &Velocity), (With<CueBall>, Without<Camera3d>)>,
-    time: Res<Time>,
+/// Matches the camera velocity to the cue ball velocity
+pub fn follow_cam(
+    camera: Single<&mut Velocity, (With<Camera3d>, Without<CueBall>)>,
+    cue_ball: Single<&Velocity, (With<CueBall>, Without<Camera3d>)>,
 ) {
-    let (cue_ball_transform, cue_ball_velocity) = cue_ball.into_inner();
-    let mut camera_transform = camera.into_inner();
+    let mut camera_velocity = camera.into_inner();
+    let cue_ball_velocity = cue_ball.into_inner();
 
-    camera_transform.look_at(cue_ball_transform.translation, Vec3::Y);
-
-    if cue_ball_velocity.speed > 0.0 {
-        camera_transform.translation +=
-            cue_ball_velocity.direction * cue_ball_velocity.speed * time.delta_secs();
-    }
+    camera_velocity.linvel = cue_ball_velocity.linvel.clone();
 }
 
+/// Rotates the camera around the cue ball when the E or Q keys are pressed.
 pub fn rotate_camera_interaction(
     keys: Res<ButtonInput<KeyCode>>,
     camera: Single<&mut Transform, With<Camera3d>>,
@@ -38,31 +35,35 @@ pub fn rotate_camera_interaction(
     }
 }
 
-// when Space key is pressed set a velocity for the cue ball based on the relative position of the camera
+/// When the Space key is pressed, sets a velocity for the cue ball based on the relative position of the camera.
 pub fn hit_intraction(
     keys: Res<ButtonInput<KeyCode>>,
     camera: Single<&Transform, With<Camera3d>>,
-    cue_ball: Single<(&Transform, &mut Velocity), (With<CueBall>, Without<Camera3d>)>,
+    cue_ball: Single<(&Transform, &mut Velocity), With<CueBall>>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
         let (cue_ball_transform, mut cue_ball_velocity) = cue_ball.into_inner();
-        let camera_transformation = camera.into_inner();
+        let camera_transform = camera.into_inner();
 
-        let mut direction = cue_ball_transform.translation - camera_transformation.translation;
+        let mut direction = cue_ball_transform.translation - camera_transform.translation;
         // set y to 0 since the camera will be above the ball but we only want to ball to run along the table
         direction.y = 0.0;
-        cue_ball_velocity.direction = direction;
-        cue_ball_velocity.speed = 1.0;
+        let normalized_direction = direction.normalize();
+
+        cue_ball_velocity.linvel = normalized_direction * 10.0;
     }
 }
 
-pub fn enact_velocity(velocity_entities: Query<(&mut Transform, &mut Velocity)>, time: Res<Time>) {
-    for (mut transform, mut velocity) in velocity_entities {
-        if velocity.speed > 0.0 {
-            transform.translation += velocity.direction * velocity.speed * time.delta_secs();
-            velocity.speed -= DECELERATION;
-            if velocity.speed < 0.0 {
-                velocity.speed = 0.0;
+/** Reduces the velocity vector length by the DECELERATION value.
+DECELERATION is the amount per second **/
+pub fn apply_deceleration(velocities: Query<&mut Velocity>, time: Res<Time>) {
+    let decel_for_tick = DECELERATION * time.delta_secs();
+    for mut velocity in velocities {
+        if velocity.linvel.length() != 0.0 {
+            let new_length = velocity.linvel.length() - decel_for_tick;
+            velocity.linvel = velocity.linvel.normalize() * new_length;
+            if velocity.linvel.length() < decel_for_tick {
+                velocity.linvel = Vec3::ZERO;
             }
         }
     }

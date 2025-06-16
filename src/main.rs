@@ -2,6 +2,7 @@ mod components;
 mod constants;
 mod setup_systems;
 mod update_systems;
+use bevy_rapier3d::prelude::*;
 use setup_systems::*;
 use update_systems::*;
 
@@ -13,6 +14,7 @@ use bevy::{
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, PooltablePlugin))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .run();
 }
 
@@ -24,10 +26,10 @@ impl Plugin for PooltablePlugin {
         app.add_systems(
             Update,
             (
-                camera_watch_cue_ball,
                 rotate_camera_interaction,
                 hit_intraction,
-                enact_velocity,
+                apply_deceleration,
+                follow_cam,
             ),
         );
     }
