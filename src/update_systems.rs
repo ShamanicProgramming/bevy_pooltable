@@ -50,21 +50,6 @@ pub fn hit_intraction(
         direction.y = 0.0;
         let normalized_direction = direction.normalize();
 
-        cue_ball_velocity.linvel = normalized_direction * 10.0;
-    }
-}
-
-/** Reduces the velocity vector length by the DECELERATION value.
-DECELERATION is the amount per second **/
-pub fn apply_deceleration(velocities: Query<&mut Velocity>, time: Res<Time>) {
-    let decel_for_tick = DECELERATION * time.delta_secs();
-    for mut velocity in velocities {
-        if velocity.linvel.length() != 0.0 {
-            let new_length = velocity.linvel.length() - decel_for_tick;
-            velocity.linvel = velocity.linvel.normalize() * new_length;
-            if velocity.linvel.length() < decel_for_tick {
-                velocity.linvel = Vec3::ZERO;
-            }
-        }
+        cue_ball_velocity.linvel = normalized_direction * 20.0;
     }
 }

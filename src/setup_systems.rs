@@ -1,8 +1,14 @@
 use std::f32::consts::PI;
 
-use crate::{components::*, constants::CAMERA_HEIGHT};
+use crate::{
+    components::*,
+    constants::{CAMERA_HEIGHT, DECELERATION},
+};
 use bevy::prelude::*;
-use bevy_rapier3d::{dynamics::RigidBody, prelude::Velocity};
+use bevy_rapier3d::{
+    dynamics::RigidBody,
+    prelude::{Damping, Velocity},
+};
 use rand::{rng, seq::SliceRandom};
 
 pub fn add_table(
@@ -130,6 +136,10 @@ pub fn add_balls(
             ..default()
         })),
         Transform::from_xyz(6.14, 0.254, 0.0),
+        Damping {
+            linear_damping: DECELERATION,
+            angular_damping: 0.0,
+        },
     ));
 
     // cue ball
@@ -143,6 +153,10 @@ pub fn add_balls(
             ..default()
         })),
         Transform::from_xyz(-6.14, 0.254, 0.0),
+        Damping {
+            linear_damping: DECELERATION,
+            angular_damping: 0.0,
+        },
     ));
 
     // other balls
@@ -160,6 +174,10 @@ pub fn add_balls(
                 ball_positions[i].1,
                 ball_positions[i].2,
             ),
+            Damping {
+                linear_damping: DECELERATION,
+                angular_damping: 0.0,
+            },
         ));
     }
 }
