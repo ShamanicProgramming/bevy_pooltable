@@ -139,12 +139,12 @@ pub fn add_balls(
         .insert(Transform::from_xyz(6.14, 0.254, 0.0))
         .insert(Damping {
             linear_damping: DECELERATION,
-            angular_damping: 0.0,
+            angular_damping: DECELERATION,
         })
         .insert(Collider::ball(0.254))
         .insert(GravityScale(0.0))
         .insert(ColliderMassProperties::Density(2.0))
-        .insert(Restitution::coefficient(0.8));
+        .insert(Restitution::coefficient(0.9));
 
     // cue ball
     commands
@@ -159,12 +159,12 @@ pub fn add_balls(
         .insert(Transform::from_xyz(-6.14, 0.254, 0.0))
         .insert(Damping {
             linear_damping: DECELERATION,
-            angular_damping: 0.0,
+            angular_damping: DECELERATION,
         })
         .insert(Collider::ball(0.254))
         .insert(GravityScale(0.0))
         .insert(ColliderMassProperties::Density(2.0))
-        .insert(Restitution::coefficient(0.8));
+        .insert(Restitution::coefficient(0.9));
 
     // other balls
     for i in 0..14 {
@@ -183,11 +183,11 @@ pub fn add_balls(
             ))
             .insert(Damping {
                 linear_damping: DECELERATION,
-                angular_damping: 0.0,
+                angular_damping: DECELERATION,
             })
             .insert(Collider::ball(0.254))
             .insert(GravityScale(0.0))
             .insert(ColliderMassProperties::Density(2.0))
-            .insert(Restitution::coefficient(0.8));
+            .insert(Restitution::coefficient(0.9));
     }
 }
