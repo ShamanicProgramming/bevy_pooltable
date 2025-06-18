@@ -5,10 +5,7 @@ use crate::{
     constants::{CAMERA_HEIGHT, DECELERATION},
 };
 use bevy::prelude::*;
-use bevy_rapier3d::{
-    dynamics::RigidBody,
-    prelude::{Damping, Velocity},
-};
+use bevy_rapier3d::{dynamics::RigidBody, prelude::*};
 use rand::{rng, seq::SliceRandom};
 
 pub fn add_table(
@@ -27,33 +24,37 @@ pub fn add_table(
     ));
 
     // table sides
-    commands.spawn((
-        RigidBody::Fixed,
-        Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))),
-        MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(0.0, 0.0, 6.35),
-    ));
+    commands
+        .spawn(RigidBody::Fixed)
+        .insert(Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))))
+        .insert(MeshMaterial3d(brown_table_material.clone()))
+        .insert(Transform::from_xyz(0.0, 0.0, 6.35))
+        .insert(Collider::cuboid(25.4 / 2.0, 0.8 / 2.0, 0.8 / 2.0))
+        .insert(Restitution::coefficient(1.0));
 
-    commands.spawn((
-        RigidBody::Fixed,
-        Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))),
-        MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(0.0, 0.0, -6.35),
-    ));
+    commands
+        .spawn(RigidBody::Fixed)
+        .insert(Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))))
+        .insert(MeshMaterial3d(brown_table_material.clone()))
+        .insert(Transform::from_xyz(0.0, 0.0, -6.35))
+        .insert(Collider::cuboid(25.4 / 2.0, 0.8 / 2.0, 0.8 / 2.0))
+        .insert(Restitution::coefficient(1.0));
 
-    commands.spawn((
-        RigidBody::Fixed,
-        Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))),
-        MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(12.7, 0.0, 0.0),
-    ));
+    commands
+        .spawn(RigidBody::Fixed)
+        .insert(Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))))
+        .insert(MeshMaterial3d(brown_table_material.clone()))
+        .insert(Transform::from_xyz(12.7, 0.0, 0.0))
+        .insert(Collider::cuboid(0.8 / 2.0, 0.8 / 2.0, 12.7 / 2.0))
+        .insert(Restitution::coefficient(1.0));
 
-    commands.spawn((
-        RigidBody::Fixed,
-        Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))),
-        MeshMaterial3d(brown_table_material.clone()),
-        Transform::from_xyz(-12.7, 0.0, 0.0),
-    ));
+    commands
+        .spawn(RigidBody::Fixed)
+        .insert(Mesh3d(meshes.add(Cuboid::new(0.8, 0.8, 12.7))))
+        .insert(MeshMaterial3d(brown_table_material.clone()))
+        .insert(Transform::from_xyz(-12.7, 0.0, 0.0))
+        .insert(Collider::cuboid(0.8 / 2.0, 0.8 / 2.0, 12.7 / 2.0))
+        .insert(Restitution::coefficient(1.0));
 }
 
 pub fn add_camera(mut commands: Commands) {
@@ -127,57 +128,66 @@ pub fn add_balls(
     ball_textures.shuffle(&mut rng);
 
     // eight ball
-    commands.spawn((
-        RigidBody::Dynamic,
-        Velocity::zero(),
-        Mesh3d(meshes.add(Sphere::new(0.254))),
-        MeshMaterial3d(materials.add(StandardMaterial {
+    commands
+        .spawn(RigidBody::Dynamic)
+        .insert(Velocity::zero())
+        .insert(Mesh3d(meshes.add(Sphere::new(0.254))))
+        .insert(MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(eight_ball_texture.clone()),
             ..default()
-        })),
-        Transform::from_xyz(6.14, 0.254, 0.0),
-        Damping {
+        })))
+        .insert(Transform::from_xyz(6.14, 0.254, 0.0))
+        .insert(Damping {
             linear_damping: DECELERATION,
             angular_damping: 0.0,
-        },
-    ));
+        })
+        .insert(Collider::ball(0.254))
+        .insert(GravityScale(0.0))
+        .insert(ColliderMassProperties::Density(2.0))
+        .insert(Restitution::coefficient(0.8));
 
     // cue ball
-    commands.spawn((
-        RigidBody::Dynamic,
-        Velocity::zero(),
-        CueBall,
-        Mesh3d(meshes.add(Sphere::new(0.254))),
-        MeshMaterial3d(materials.add(StandardMaterial {
+    commands
+        .spawn(RigidBody::Dynamic)
+        .insert(Velocity::zero())
+        .insert(CueBall)
+        .insert(Mesh3d(meshes.add(Sphere::new(0.254))))
+        .insert(MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(cue_ball_texture.clone()),
             ..default()
-        })),
-        Transform::from_xyz(-6.14, 0.254, 0.0),
-        Damping {
+        })))
+        .insert(Transform::from_xyz(-6.14, 0.254, 0.0))
+        .insert(Damping {
             linear_damping: DECELERATION,
             angular_damping: 0.0,
-        },
-    ));
+        })
+        .insert(Collider::ball(0.254))
+        .insert(GravityScale(0.0))
+        .insert(ColliderMassProperties::Density(2.0))
+        .insert(Restitution::coefficient(0.8));
 
     // other balls
     for i in 0..14 {
-        commands.spawn((
-            RigidBody::Dynamic,
-            Velocity::zero(),
-            Mesh3d(meshes.add(Sphere::new(0.254))),
-            MeshMaterial3d(materials.add(StandardMaterial {
+        commands
+            .spawn(RigidBody::Dynamic)
+            .insert(Velocity::zero())
+            .insert(Mesh3d(meshes.add(Sphere::new(0.254))))
+            .insert(MeshMaterial3d(materials.add(StandardMaterial {
                 base_color_texture: Some(ball_textures[i].clone()),
                 ..default()
-            })),
-            Transform::from_xyz(
+            })))
+            .insert(Transform::from_xyz(
                 ball_positions[i].0,
                 ball_positions[i].1,
                 ball_positions[i].2,
-            ),
-            Damping {
+            ))
+            .insert(Damping {
                 linear_damping: DECELERATION,
                 angular_damping: 0.0,
-            },
-        ));
+            })
+            .insert(Collider::ball(0.254))
+            .insert(GravityScale(0.0))
+            .insert(ColliderMassProperties::Density(2.0))
+            .insert(Restitution::coefficient(0.8));
     }
 }

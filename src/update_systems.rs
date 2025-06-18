@@ -50,6 +50,6 @@ pub fn hit_intraction(
         direction.y = 0.0;
         let normalized_direction = direction.normalize();
 
-        cue_ball_velocity.linvel = normalized_direction * 20.0;
+        cue_ball_velocity.linvel = normalized_direction * 23.0;
     }
 }
