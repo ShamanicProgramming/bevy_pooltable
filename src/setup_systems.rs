@@ -1,9 +1,6 @@
 use std::f32::consts::PI;
 
-use crate::{
-    components::*,
-    constants::{CAMERA_HEIGHT, DECELERATION},
-};
+use crate::{components::*, constants::*};
 use bevy::prelude::*;
 use bevy_rapier3d::{dynamics::RigidBody, prelude::*};
 use rand::{rng, seq::SliceRandom};
@@ -21,23 +18,25 @@ pub fn add_table(
         Mesh3d(meshes.add(Plane3d::default().mesh().size(25.4, 12.7))),
         MeshMaterial3d(green_table_material.clone()),
         Transform::from_xyz(0.0, 0.0, 0.0),
+        RigidBody::Fixed,
+        Collider::cuboid(25.4 / 2.0, 0.001 / 2.0, 12.7 / 2.0),
     ));
 
     // table sides
     commands
         .spawn(RigidBody::Fixed)
-        .insert(Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))))
+        .insert(Mesh3d(meshes.add(Cuboid::new(26.2, 0.8, 0.8))))
         .insert(MeshMaterial3d(brown_table_material.clone()))
         .insert(Transform::from_xyz(0.0, 0.0, 6.35))
-        .insert(Collider::cuboid(25.4 / 2.0, 0.8 / 2.0, 0.8 / 2.0))
+        .insert(Collider::cuboid(26.2 / 2.0, 0.8 / 2.0, 0.8 / 2.0))
         .insert(Restitution::coefficient(1.0));
 
     commands
         .spawn(RigidBody::Fixed)
-        .insert(Mesh3d(meshes.add(Cuboid::new(25.4, 0.8, 0.8))))
+        .insert(Mesh3d(meshes.add(Cuboid::new(26.2, 0.8, 0.8))))
         .insert(MeshMaterial3d(brown_table_material.clone()))
         .insert(Transform::from_xyz(0.0, 0.0, -6.35))
-        .insert(Collider::cuboid(25.4 / 2.0, 0.8 / 2.0, 0.8 / 2.0))
+        .insert(Collider::cuboid(26.2 / 2.0, 0.8 / 2.0, 0.8 / 2.0))
         .insert(Restitution::coefficient(1.0));
 
     commands
@@ -141,9 +140,8 @@ pub fn add_balls(
             linear_damping: DECELERATION,
             angular_damping: DECELERATION,
         })
-        .insert(Collider::ball(0.254))
-        .insert(GravityScale(0.0))
-        .insert(ColliderMassProperties::Density(2.0))
+        .insert(Collider::ball(BALL_R))
+        .insert(ColliderMassProperties::Density(BALL_DENSITY))
         .insert(Restitution::coefficient(0.9));
 
     // cue ball
@@ -151,7 +149,7 @@ pub fn add_balls(
         .spawn(RigidBody::Dynamic)
         .insert(Velocity::zero())
         .insert(CueBall)
-        .insert(Mesh3d(meshes.add(Sphere::new(0.254))))
+        .insert(Mesh3d(meshes.add(Sphere::new(BALL_R))))
         .insert(MeshMaterial3d(materials.add(StandardMaterial {
             base_color_texture: Some(cue_ball_texture.clone()),
             ..default()
@@ -161,10 +159,13 @@ pub fn add_balls(
             linear_damping: DECELERATION,
             angular_damping: DECELERATION,
         })
-        .insert(Collider::ball(0.254))
-        .insert(GravityScale(0.0))
-        .insert(ColliderMassProperties::Density(2.0))
-        .insert(Restitution::coefficient(0.9));
+        .insert(Collider::ball(BALL_R))
+        .insert(ColliderMassProperties::Density(BALL_DENSITY))
+        .insert(Restitution::coefficient(0.9))
+        .insert(ExternalImpulse {
+            impulse: Vec3::ZERO,
+            torque_impulse: Vec3::ZERO,
+        });
 
     // other balls
     for i in 0..14 {
@@ -186,8 +187,7 @@ pub fn add_balls(
                 angular_damping: DECELERATION,
             })
             .insert(Collider::ball(0.254))
-            .insert(GravityScale(0.0))
-            .insert(ColliderMassProperties::Density(2.0))
+            .insert(ColliderMassProperties::Density(BALL_DENSITY))
             .insert(Restitution::coefficient(0.9));
     }
 }

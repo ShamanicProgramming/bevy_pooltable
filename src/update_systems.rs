@@ -1,6 +1,6 @@
 use crate::{components::*, constants::*};
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::Velocity;
+use bevy_rapier3d::prelude::{ExternalImpulse, Velocity};
 
 /// Matches the camera velocity to the cue ball velocity
 pub fn follow_cam(
@@ -35,14 +35,14 @@ pub fn rotate_camera_interaction(
     }
 }
 
-/// When the Space key is pressed, sets a velocity for the cue ball based on the relative position of the camera.
+/// When the Space key is pressed, sets an impulse for the cue ball based on the relative position of the camera.
 pub fn hit_intraction(
     keys: Res<ButtonInput<KeyCode>>,
     camera: Single<&Transform, With<Camera3d>>,
-    cue_ball: Single<(&Transform, &mut Velocity), With<CueBall>>,
+    cue_ball: Single<(&Transform, &mut ExternalImpulse), With<CueBall>>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
-        let (cue_ball_transform, mut cue_ball_velocity) = cue_ball.into_inner();
+        let (cue_ball_transform, mut cue_ball_impulse) = cue_ball.into_inner();
         let camera_transform = camera.into_inner();
 
         let mut direction = cue_ball_transform.translation - camera_transform.translation;
@@ -50,6 +50,6 @@ pub fn hit_intraction(
         direction.y = 0.0;
         let normalized_direction = direction.normalize();
 
-        cue_ball_velocity.linvel = normalized_direction * 23.0;
+        cue_ball_impulse.impulse = normalized_direction * BALL_HIT_MAGNITUDE;
     }
 }
